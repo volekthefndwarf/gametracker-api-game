@@ -1,0 +1,31 @@
+{
+  "type": "object",
+  "properties": {
+    "key": {
+      "type": "string", 
+      "description": "GCS key assigned at creation time, used for reference of game internally"
+    },
+    "name": {
+      "type": "string",      
+      "description": "name of the video game"      
+    },
+    "released": {
+      "type": "integer",
+      "pattern": "(19[0-9]{2})|(20[0-9])"
+    }, 
+    "platform": {
+      "type":"string",
+      "enum": ["ps1","ps2","ps3", "ps4", "PC","Mac","Xbox","Xbox 360", "Xbox One", "NES", "SNES"]
+    },
+    "source": {
+      "type": "string"
+    },
+    "thumbnail": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "name", "platform", "source"
+  ],
+  "errorMessage": "The request could not be processed."
+}

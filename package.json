@@ -1,0 +1,51 @@
+{
+  "name": "rpggametracker.com",
+  "version": "0.0.1",
+  "description": "RPGgameTracker main site and functionality",
+  "main": "index.js",
+  "scripts": {
+    "emulator-start": "node scripts/emulators-start.js",
+    "emulator-stop": "node scripts/emulators-stop.js",
+    "deploy-staging": "gcloud beta functions deploy sayMyName --stage-bucket staging.rpggametracker.appspot.com --trigger-http",
+    "test": "node_modules/.bin/mocha || exit 0",
+    "test-watch": "node_modules/.bin/mocha --watch tests/*-test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/volekthefndwarf/rpggametracker.git"
+  },
+  "keywords": [
+    "gametracker",
+    "nodejs",
+    "gametimer",
+    "video",
+    "games",
+    "twitch"
+  ],
+  "author": "volek.the.fn.dwarf@gmail.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/volekthefndwarf/rpggametracker/issues"
+  },
+  "homepage": "https://github.com/volekthefndwarf/rpggametracker#readme",
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "dotenv": "^5.0.1",
+    "google-datastore-emulator": "1.5.0",
+    "json-schema-faker": "^0.5.0-rc13",
+    "mocha": "^5.0.1"
+  },
+  "dependencies": {
+    "@google-cloud/datastore": "^1.3.4",
+    "@google-cloud/debug-agent": "^2.3.2",
+    "@google-cloud/trace-agent": "^2.4.1",
+    "ajv": "^6.1.1",
+    "ajv-errors": "^1.0.0",
+    "app-root-path": "^2.0.1",
+    "guid": "0.0.12",
+    "modofun": "^1.1.0",
+    "modofun-trace-agent-plugin": "^1.0.0",
+    "moment": "^2.20.1",
+    "node-fetch": "^2.1.1"
+  }
+}

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/numeral.js/2.0.6/numeral.min.js"></script>
+      <script
+        src="https://code.jquery.com/jquery-3.2.1.min.js"
+        integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+        crossorigin="anonymous">
+      </script>
+      <link rel='stylesheet' id='ot-google-fonts-css'  href='https://fonts.googleapis.com/css?family=Lato:300,regular,700' type='text/css' media='all' />
+  </head>
+    
+    <body>
+    <style>
+      body {
+        color: rgba(255, 255, 255, 1);
+        -webkit-font-smoothing: antialiased;
+        font: 1.2vh Lato, sans-serif;
+        background: rgba(4, 1, 22, 0.95);
+        background-image: initial;
+        background-position-x: initial;
+        background-position-y: initial;
+        background-size: initial;
+        background-attachment: initial;
+        background-origin: initial;
+        background-clip: initial;
+        padding: 0;
+        margin: 0;
+      }
+      
+      h2 {
+        font-family: Lato,sans-seriff;
+        font-size: 3.5vw;        
+        font-weight: 400;
+        text-transform: uppercase; 
+        margin-top: 2vh !important;
+        margin-bottom: 1vh !important;
+        text-align: center;
+        -webkit-margin-before: 0.83em;
+        -webkit-margin-after: 0.83em;
+        -webkit-margin-start: 0px;
+        -webkit-margin-end: 0px;
+      }
+
+      .countdown {
+        text-align: center;
+        max-width: 750px;
+        margin: 2rem auto;
+        margin-bottom: .5vh !important;
+        margin-top: .5vh !important;
+
+      }
+
+      .countdown-item {
+        margin-left:15px;
+        margin-right:15px;
+      }
+
+      .countdown-item>div>span{
+        display:block;        
+        font-weight:500;
+        line-height:1;
+        min-width:130px;
+        font-weight:400;
+        font-size:3.8vw;
+      }
+      
+      .countdown-item>div>span {
+        display:inline-block;
+        position:relative;        
+        padding:15px 20px;
+      }
+      
+      span{
+        position:relative;
+        z-index:10;        
+      }
+
+      .countdown-item>div>span:after {
+        content:'';
+        position:absolute;top:0;left:0;right:0;bottom:0;
+        background:rgba(8,3,15,.35); 
+        -webkit-transform:skew(-8deg);
+        -ms-transform:skew(-8deg);
+        -o-transform:skew(-8deg);
+        transform:skew(-8deg);
+        z-index: 1;
+        -webkit-transform-origin:50% 50%;
+        -ms-transform-origin:50% 50%;
+        -o-transform-origin:50% 50%;
+        transform-origin:50% 50%
+      }
+      
+        
+      .background-container {
+        position: relative;        
+        min-height: 60vh;
+        width: 100%;
+        overflow: hidden;
+        align-items: center;
+         -webkit-align-items: center;
+        -ms-flex-align: center;        
+        -webkit-justify-content: center;
+        -ms-flex-pack: center;
+        justify-content: center;        
+      }
+
+      .image {
+        position: absolute;
+        opacity: .5;
+        top: 0;
+        left: 0;
+        background-attachment: fixed;
+        background-size:150% auto;
+        background-repeat: no-repeat;
+        width: 225%;
+        height: 225%;
+      }
+
+      .container-wrap {
+        max-width: 100vw; 
+        margin: 0 auto;
+        background: #080325;
+        overflow: hidden;        
+      }
+
+    </style> 
+    <div class='container-wrap'>
+      <div class='background-container'>
+        <div class='image' style="background-image: url('assets/wlop-fantasy-bg.jpg')"></div>
+      </div>
+      <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%">
+          <h2>Total Time</h2>
+          <div class='countdown'>
+              <div class='countdown-item'>   
+                <div style="position: relative;">
+                  <span id='view-total-time'></span>
+                </div>
+              </div>
+            </div> 
+          <h2>Session Time</h2>
+          <div class='countdown'>
+            <div class='countdown-item'>   
+              <div style="position: relative;">
+                <span id='view-session-time'></span>
+              </div>
+            </div>
+          </div>  
+          <div>
+              <h2>Game Sessions</h2>
+              <ul id='game-sessions'></ul>  
+          </div>          
+      </div>
+    </div>
+
+    <div style="position: relative; margin: auto">
+        <button id='btn-start'>Start Game Time</button>
+        <button id='btn-pause'>Pause Game Time</button>
+        <input id='text-session-name' type='input' name='session-name'/ >
+        <button id='btn-session-save' value='Session Save'>Session Save</button>
+    </div>
+
+
+
+
+
+  </body>
+
+  <script>
+
+    var totalTime = 0;
+    var sessionTime = 0;  
+    var totalMicro = 0; 
+    var sessionMicro = 0;
+    var timerStarted = false; 
+    var sessions = [];
+    var pause = false;  
+
+    function createItem(record) {      
+      var localSession = record['sessionTime']; 
+      var localTotal = record['totalTime']; 
+      console.log(record); 
+      var formattedStime = numeral(localSession).format('00:00:00') + `${localSession}`.slice(-2); 
+      var formattedTtime = numeral(localTotal).format('00:00:00') + `${localTotal}`.slice(-2); 
+      return `<li><span>${record['sessionName']}</span> | <span>${formattedStime}</span> | <span> ${formattedTtime} </span></li>`;       
+    }
+
+    function updateSessionsView() {
+      var sessionList = []; 
+      for(i=sessions.length; i > 0; i--) {
+        sessionList.push(createItem(sessions[i-1])); 
+      }
+      $('#game-sessions').html(sessionList.join("\n")); 
+    }
+
+    function updateView() {
+      $('#view-total-time').html(numeral(totalTime).format('00:00:00') + `.${totalMicro}`);
+      $('#view-session-time').html(numeral(sessionTime).format('00:00:00') + `.${sessionMicro}`);              
+    }
+
+    function gameTimer() {
+      setTimeout(() => {        
+        // if the user has paused the timer then just reset and wait until unpaused. 
+        if(pause) {          
+          return gameTimer(); 
+        }
+
+        if(totalMicro === 9) {
+          totalMicro = 0; 
+          totalTime++; 
+        }
+
+        if(sessionMicro === 9) {
+          sessionMicro = 0; 
+          sessionTime++; 
+        }
+
+        totalMicro++; 
+        sessionMicro++; 
+
+        // tick to the next timer. 
+        gameTimer();
+        updateView(); 
+      }, 100); 
+    }
+    
+    function startTimer() {
+      if(!timerStarted) {
+        timerStarted = true;
+        return gameTimer(); 
+      }
+
+      // if we already have a timer do not start it but allow start to un-pause
+      if(timerStarted && pause) {
+        return pause = false; 
+      }      
+    }
+
+    function pauseTime() {
+      pause = !pause; 
+    }
+
+    function saveSession() {
+      sessions.push({
+        sessionName: $('#text-session-name').val(),
+        sessionTime: sessionTime + ((sessionMicro / 10) || '0.0'),
+        totalTime: totalTime + ((totalMicro / 10) || '0.0')
+      }); 
+
+      sessionTime = 0; 
+      sessionMicro = 0; 
+      updateSessionsView(); 
+      updateView();
+    }
+
+    $(document).ready(() => {
+      updateView(); 
+      $('#btn-start').bind('click', startTimer); 
+      $('#btn-pause').bind('click', pauseTime); 
+      $('#btn-session-save').bind('click', saveSession); 
+    }); 
+
+  </script>
+</html>
