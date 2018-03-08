@@ -1,5 +1,6 @@
+const isString = require('util');
 const fetch = require('node-fetch'); 
-const config = require('../settings.json'); 
+const config = require('./settings'); 
 /**
  * MobyGames Client API for making api calls to MobyGames
  * @author volek.the.fn.dwarf@gmail.com
@@ -21,11 +22,34 @@ class Client {
   getGames(options) {
     return new Promise((resolve, reject) => {
       fetch(
-        _gameUrl(options)
+        this._gameUrl(options)
       )
-      .then(res => resolve(res.json()))
-      .catch(reject); 
+      .then(res => {        
+        return res.json();
+      })
+      .then(data => {
+        if(data.error) {
+          return reject(new Error(data.message)); 
+        }        
+        if(data && data.games.length) {
+          return resolve(data.games); 
+        } 
+        return resolve([]); 
+      })
+      .catch(reject)
     }); 
+  }
+
+  gamesByTitle(title, options = {}) {
+    if(typeof title !== 'string') {
+      throw new TypeError('Title must be a string');        
+    }
+
+    if(typeof options !== 'object') {
+      throw new TypeError('gamesByTitle param options passed in was not an object.'); 
+    }
+
+    return this.getGames(Object.assign({ title }, options));       
   }
 
   _gameUrl(options) {
@@ -40,14 +64,15 @@ class Client {
       platform: null
     }, options); 
 
-    let params; 
-    for(key in localParams) {
+    let params = []; 
+    for (let key in localParams) {
       if(localParams[key] !== null) {
         params.push(`${key}=${localParams[key]}`); 
       }
     }
 
-    return `${config.baseUri}games?` + params.join['&'] + `api_key=${config.apiKey}`; 
+    let result = `${config.baseUri}games?api_key=${config.apiKey}&` + params.join('&'); 
+    return result; 
   }
 
 }
